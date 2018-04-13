@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>nodeJSONP</title>
+</head>
+
+<body>
+    <button id="myButton">触发JSONP</button>
+    <button id="aaa">证明我会用AJAX</button>
+    <div id="textBox"></div>
+    <script>
+        myButton.addEventListener('click', (e) => {
+            let script = document.createElement('script')
+            let functionName = 'qiu' + parseInt(Math.random() * 100000, 10)
+            window[functionName] = function (result) {
+                window.alert(result)
+            }
+            script.src = 'http://localhost:8002/pay?callback=' + functionName
+            document.body.appendChild(script)
+            script.onload = function (e) {
+                e.currentTarget.remove()
+            }
+            script.onerror = function (e) {
+                alert('fail')
+                e.currentTarget.remove()
+            }
+        })
+        aaa.addEventListener('click', (e) => {
+            let request = new XMLHttpRequest
+            request.open('get', 'http://localhost:8888/aaa')
+            request.send()
+            request.onreadystatechange = () => {
+                if (request.readyState === 4) {
+                    if (request.status >= 200 && request.status < 300) {
+                        let string = request.responseText
+                        let object = window.JSON.parse(string)
+                    } else if (request.status >= 400) {
+                        console.log('请求失败')
+                    }
+                }
+            }
+        })
+    </script>
+</body>
+
+</html>
